@@ -2,7 +2,7 @@ from core import framework
 import logging
 
 logging.basicConfig(level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%m-%d %H:%M:%S',
 )
 logger = logging.getLogger('brewpot')
