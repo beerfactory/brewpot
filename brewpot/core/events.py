@@ -1,12 +1,12 @@
 import logging
+import uuid
 from concurrent.futures import ThreadPoolExecutor
 
-class Event(object):
-    def __init__(self, event_type):
-        self._event_type = event_type
 
-    def get_type(self):
-        return self._event_type
+class Event(object):
+    def __init__(self, ptype):
+        self.type = ptype
+        self.uid = uuid.uuid4()
 
 
 class EventDispatcher(object):
@@ -18,15 +18,19 @@ class EventDispatcher(object):
         pass
 
     def send(self, event, async=False):
-        self._logger.debug("Event '%s' sent from '%s'", event.get_type(), event.source)
+        if self._logger.isEnabledFor(logging.DEBUG):
+            try:
+                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.source.get_plugin().get_name())
+            except:
+                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.source)
         assert isinstance(event, Event), \
             "Sent event must be sublass of Event class."
         callbacks = []
         try:
-            callbacks = self._connected_callbacks[event.get_type]
+            callbacks = self._connected_callbacks[event.type]
         except KeyError:
             self._logger.debug("No callback registered for event '%s'",
-                event.get_type())
+                event.type)
 
         for r in callbacks:
             if async:
