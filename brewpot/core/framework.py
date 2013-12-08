@@ -107,6 +107,7 @@ class Framework(Plugin):
         :param properties: The framework properties
         """
         Plugin.__init__(self, self, 0, constants.SYSTEM_PLUGIN_NAME)
+        self._logger = self.get_context().get_logger()
 
         # Framework properties
         if not isinstance(properties, dict):
@@ -128,7 +129,7 @@ class Framework(Plugin):
         self._event_dispatcher = EventDispatcher(self)
         self._start_level = 0
         self._state = PluginState.STARTING
-        self.get_context().get_logger().info("Framework surceesfully created")
+        self._logger.info("Framework surceesfully created")
 
     def _send_framework_event(self, event, async):
         self.send_event(self.get_context(), event, async)
@@ -141,17 +142,19 @@ class Framework(Plugin):
         return self._properties[key]
 
     def start(self):
-        self.get_context().get_logger().info("Framework starting ...")
+        self._logger.info("Framework starting ...")
+
         super(Framework, self).start()
         self._state = PluginState.ACTIVE
+
         self._send_framework_event(Event("framework.started"), async=True)
-        self.get_context().get_logger().info("Framework started")
+        self._logger.info("Framework started")
 
     def install_plugin(self, name, path=None):
         with self._plugins_lock:
             for plugin in self._plugins:
                 if plugin.get_name() == name:
-                    #TODO : Add logging
+                    self._logger.warn("Plugin %s already installed", name)
                     return plugin
             #TODO Load plugin
             try:
