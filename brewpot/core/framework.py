@@ -128,7 +128,6 @@ class Framework(Plugin):
         self._event_dispatcher = EventDispatcher(self)
         self._start_level = 0
         self._state = PluginState.STARTING
-        self._send_framework_event(Event("TEST"), async=True)
         self.get_context().get_logger().info("Framework surceesfully created")
 
     def _send_framework_event(self, event, async):
@@ -144,7 +143,8 @@ class Framework(Plugin):
     def start(self):
         self.get_context().get_logger().info("Framework starting ...")
         super(Framework, self).start()
-        self._state = PluginState.STARTING
+        self._state = PluginState.ACTIVE
+        self._send_framework_event(Event("framework.started"), async=True)
         self.get_context().get_logger().info("Framework started")
 
     def install_plugin(self, name, path=None):
