@@ -1,6 +1,5 @@
-
-from framework import FrameworkFactory
+from core import framework
 
 if __name__ == '__main__':
-    framework = FrameworkFactory.newFramework(dict())
-    framework.start()
+    fwk = framework.newFramework(dict())
+    fwk.start()
