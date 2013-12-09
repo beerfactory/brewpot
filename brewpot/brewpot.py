@@ -1,4 +1,4 @@
-from core import framework
+from core.framework import base as framework
 import logging
 
 logging.basicConfig(level=logging.DEBUG,

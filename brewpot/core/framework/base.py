@@ -59,7 +59,7 @@ class PluginContext(object):
     def send_event(self, event, async=False):
         self._framework.send_event(self, event, async)
 
-    def register_event_callback(self, callback, event_types[]):
+    def register_event_callback(self, callback, event_types):
         self._framework.register_event_callback(self, callback, event_types)
 
     def get_plugin(self):
