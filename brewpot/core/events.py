@@ -1,13 +1,19 @@
 import logging
 import uuid
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 
 class Event(object):
-    def __init__(self, ptype):
-        self.type = ptype
+    def __init__(self):
         self.sender = None
         self.uid = uuid.uuid4()
+        self._event_time = time.time()
+
+class PluginEvent(Event):
+    def __init__(self, plugin):
+        super(PluginEvent, self).__init__()
+        self._plugin = plugin
 
 
 class EventDispatcher(object):
@@ -20,20 +26,18 @@ class EventDispatcher(object):
 
     def send(self, event, async=False):
         if self._logger.isEnabledFor(logging.DEBUG):
-            try:
-                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.sender.get_plugin().get_name())
-            except:
-                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.sender)
+            self._logger.debug("Event '%s' (uid=%s) sent", str(type(event)), str(event.uid))
         assert isinstance(event, Event), \
             "Sent event must be sublass of Event class."
         callbacks = []
         try:
-            callbacks = self._connected_callbacks[event.type]
+            callbacks = self._connected_callbacks[type(event)]
         except KeyError:
             self._logger.debug("No callback registered for event '%s'",
-                event.type)
+                str(type(event)))
 
         for r in callbacks:
+            event._callback_time = time.time()
             if async:
                 self._thread_executor.submit(r, event)
             else:
@@ -53,7 +57,7 @@ class EventDispatcher(object):
             except Exception:
                 cb_list = []
                 self._connected_callbacks[event_type] = cb_list
-            cb_list.add(callback)
+            cb_list.append(callback)
 
     def unregister(self, callback, event_types=[]):
         """

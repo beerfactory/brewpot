@@ -7,7 +7,7 @@ from utils import enum
 import constants
 from core.exceptions import PluginException
 from core.events import EventDispatcher
-from core.events import Event
+from core.framework.events import FrameworkStartedEvent
 
 
 PluginState = enum(
@@ -109,7 +109,7 @@ class Framework(Plugin):
 
         :param properties: The framework properties
         """
-        Plugin.__init__(self, self, 0, constants.SYSTEM_PLUGIN_NAME)
+        super(Framework, self).__init__(self, 0, constants.SYSTEM_PLUGIN_NAME)
         self._logger = self.get_context().get_logger()
 
         # Framework properties
@@ -153,7 +153,7 @@ class Framework(Plugin):
         super(Framework, self).start()
         self._state = PluginState.ACTIVE
 
-        self._send_framework_event(Event("framework.started"), async=True)
+        self._send_framework_event(FrameworkStartedEvent(self), async=True)
         self._logger.info("Framework started")
 
     def install_plugin(self, name, path=None):
