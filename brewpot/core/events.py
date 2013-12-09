@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 class Event(object):
     def __init__(self, ptype):
         self.type = ptype
+        self.sender = None
         self.uid = uuid.uuid4()
 
 
