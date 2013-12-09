@@ -5,21 +5,25 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class Event(object):
+    """
+    Base class for all events
+
+    This class initializes the event UUID and the
+    timestamp when the event was created
+    """
     def __init__(self):
-        self.sender = None
         self.uid = uuid.uuid4()
         self._event_time = time.time()
 
 
 class AnyEvent(Event):
+    """
+    Special event type for registering callback listening
+    for any event type.
+    AnyEvent instances should not be sent by sender
+    """
     def __init__(self):
-        super(AnyEvent, self).__init__(plugin)
-
-
-class PluginEvent(Event):
-    def __init__(self, plugin):
-        super(PluginEvent, self).__init__()
-        self._plugin = plugin
+        super(AnyEvent, self).__init__()
 
 
 class EventDispatcher(object):
@@ -32,7 +36,10 @@ class EventDispatcher(object):
 
     def send(self, event, async=False):
         if self._logger.isEnabledFor(logging.DEBUG):
-            self._logger.debug("Event '%s' (uid=%s) sent", str(type(event)), str(event.uid))
+            self._logger.debug(
+                "Event '%s' (uid=%s) sent",
+                str(type(event)),
+                str(event.uid))
         assert isinstance(event, Event), \
             "Sent event must be sublass of Event class."
         callbacks = []
