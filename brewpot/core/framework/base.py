@@ -2,20 +2,11 @@ import sys
 import uuid
 import importlib
 import threading
-import logging
-from utils import enum
 import constants
 from core.exceptions import PluginException
 from core.events import EventDispatcher
 from core.framework.events import FrameworkStartedEvent
-
-
-PluginState = enum(
-    INSTALLED=0x02,
-    RESOLVED=0x04,
-    STARTING=0x08,
-    STOPPING=0x10,
-    ACTIVE=0x20)
+from core.framework.plugin import Plugin, PluginState
 
 frameworks = []
 
@@ -24,81 +15,6 @@ def newFramework(configuration):
     fwk = Framework(configuration)
     frameworks.append(fwk)
     return fwk
-
-
-class PluginLogFilter(logging.Filter):
-    """
-    Logger filter which adds contextual information
-    to logged records :
-
-    * plugin_name : Name of the plugin
-    """
-
-    def __init__(self, context):
-        logging.Filter.__init__(self)
-        self._context = context
-
-    def filter(self, record):
-        record.plugin_name = self._context.get_plugin().get_name()
-        return record
-
-
-class PluginContext(object):
-    def __init__(self, framework, plugin):
-        self._plugin = plugin
-        self._framework = framework
-
-        #Init logger for plugin
-        plugin_name = self._plugin.get_name()
-        self._logger = logging.getLogger(plugin_name)
-        self._logger.addFilter(PluginLogFilter(self))
-
-    def install_plugin(self, name, path=None):
-        return self._framework.install_plugin(name, path)
-
-    def send_event(self, event, async=False):
-        self._framework.send_event(self, event, async)
-
-    def register_event_callback(self, callback, event_types):
-        self._framework.register_event_callback(self, callback, event_types)
-
-    def get_plugin(self):
-        return self._plugin
-
-    def get_logger(self):
-        """
-        Get a logger initialized with plugin context
-        """
-        return self._logger
-
-
-class Plugin(object):
-
-    def __init__(self, framework, plugin_id, name):
-        self._state = PluginState.INSTALLED
-        self._framework = framework
-        self._id = plugin_id
-        self._name = name
-        self._context = PluginContext(framework, self)
-
-    def get_property(self, key):
-        return self._framework.get_property(key)
-
-    def get_name(self):
-        return self._name
-
-    def get_context(self):
-        return self._context
-
-    def start(self):
-        self._state = PluginState.STARTING
-
-    @property
-    def state(self):
-        """
-        Get plugin state
-        """
-        return self._state
 
 
 class Framework(Plugin):
