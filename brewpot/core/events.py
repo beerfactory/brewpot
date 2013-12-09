@@ -21,9 +21,9 @@ class EventDispatcher(object):
     def send(self, event, async=False):
         if self._logger.isEnabledFor(logging.DEBUG):
             try:
-                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.source.get_plugin().get_name())
+                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.sender.get_plugin().get_name())
             except:
-                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.source)
+                self._logger.debug("Event '%s' (uid=%s) sent from '%s'", event.type, str(event.uid), event.sender)
         assert isinstance(event, Event), \
             "Sent event must be sublass of Event class."
         callbacks = []
