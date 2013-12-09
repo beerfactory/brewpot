@@ -59,6 +59,9 @@ class PluginContext(object):
     def send_event(self, event, async=False):
         self._framework.send_event(self, event, async)
 
+    def register_event_callback(self, callback, event_types[]):
+        self._framework.register_event_callback(self, callback, event_types)
+
     def get_plugin(self):
         return self._plugin
 
@@ -134,9 +137,12 @@ class Framework(Plugin):
     def _send_framework_event(self, event, async):
         self.send_event(self.get_context(), event, async)
 
-    def send_event(self, source_context, event, async):
-        event.source = source_context
+    def send_event(self, plugin_context, event, async):
+        event.sender = plugin_context
         self._event_dispatcher.send(event, async)
+
+    def register_event_callback(self, plugin_context, callback, event_types):
+        self._event_dispatcher.register(callback, event_types)
 
     def get_property(self, key):
         return self._properties[key]
