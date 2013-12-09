@@ -10,6 +10,12 @@ class Event(object):
         self.uid = uuid.uuid4()
         self._event_time = time.time()
 
+
+class AnyEvent(Event):
+    def __init__(self):
+        super(AnyEvent, self).__init__(plugin)
+
+
 class PluginEvent(Event):
     def __init__(self, plugin):
         super(PluginEvent, self).__init__()
@@ -31,11 +37,34 @@ class EventDispatcher(object):
             "Sent event must be sublass of Event class."
         callbacks = []
         try:
-            callbacks = self._connected_callbacks[type(event)]
+            #Send event to callback register to the event type and AnyEvent
+            ev_callbacks = self._connected_callbacks[type(event)]
+            self._logger.debug(
+                "%d callback(s) registered for event '%s'",
+                len(ev_callbacks),
+                str(type(event)))
+            callbacks += ev_callbacks
         except KeyError:
-            self._logger.debug("No callback registered for event '%s'",
+            self._logger.debug(
+                "0 callback registered for event '%s'",
                 str(type(event)))
 
+        try:
+            any_callbacks = self._connected_callbacks[AnyEvent]
+            self._logger.debug(
+                "%d callback(s) registered for event '%s'",
+                len(any_callbacks),
+                str(AnyEvent))
+            callbacks += any_callbacks
+        except KeyError:
+            self._logger.debug(
+                "0 callback registered for event '%s'",
+                str(AnyEvent))
+
+        self._logger.debug(
+            "Sending %s event to %d callback(s)",
+            str(type(event)),
+            len(callbacks))
         for r in callbacks:
             event._callback_time = time.time()
             if async:
