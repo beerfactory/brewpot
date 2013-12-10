@@ -68,10 +68,15 @@ class EventDispatcher(object):
                 "0 callback registered for event '%s'",
                 str(AnyEvent))
 
-        self._logger.debug(
-            "Sending %s event to %d callback(s)",
-            str(type(event)),
-            len(callbacks))
+        if len(callbacks) == 0:
+            self._logger.warn(
+                "No callback registered for sent event %s",
+                str(type(event)))
+        else:
+            self._logger.debug(
+                "Sending %s event to %d callback(s)",
+                str(type(event)),
+                len(callbacks))
         for r in callbacks:
             event._callback_time = time.time()
             if async:
