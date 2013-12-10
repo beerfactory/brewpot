@@ -73,33 +73,44 @@ class Framework(Plugin):
         self._logger.info("Framework started")
 
     def install_plugin(self, name, path=None):
+        """
+        Install a plugin
+
+        Plugin is added to the framework plugins list. Then the framework
+        tries to resolve the plugin (importing module). The plugin is RESOLVED
+        if this operation succeed, INSTALLED otherwise.
+        """
         with self._plugins_lock:
-            for plugin in self._plugins:
-                if plugin.get_name() == name:
-                    self._logger.warn("Plugin %s already installed", name)
-                    return plugin
-            #TODO Load plugin
-            try:
-                if path:
-                    # Insert path
-                    sys.path.insert(0, path)
-
-                if name in sys.modules:
-                    # The module has already been loaded
-                    module = sys.modules[name]
-                else:
-                    # Load the module
-                    module = importlib.import_module(name)
-                    sys.modules[name] = module
-
-            except ImportError as ex:
-                # Error importing the module
-                raise PluginException(
-                    "Error installing plugin {0}: {1}".format(name, ex))
-
             plugin_id = self.__next_plugin_id
             new_plugin = Plugin(self, plugin_id, name)
             self._plugins[plugin_id] = new_plugin
             self.__next_plugin_id += 1
 
-        return new_plugin
+        for plugin in self._plugins:
+            if plugin.name == name:
+                self._logger.warn("Plugin %s already installed", name)
+                return plugin
+        try:
+            self.resolve_plugin(plugin)
+        except PluginException as pe:
+            self._logger.warn(
+                "Plugin {0} cannot be resolved: {1}".format(name, pe))
+
+    def resolve_plugin(self, plugin, path=None):
+        try:
+            if path:
+                # Insert path
+                sys.path.insert(0, path)
+
+            if plugin.name in sys.modules:
+                # The module has already been loaded
+                module = sys.modules[plugin.name]
+            else:
+                # Load the module
+                module = importlib.import_module(plugin.name)
+                sys.modules[plugin.name] = module
+            plugin._state = PluginState.RESOLVED
+        except ImportError as ex:
+            # Error importing the module
+            raise PluginException(
+                "Error installing plugin {0}: {1}".format(plugin.name, ex))

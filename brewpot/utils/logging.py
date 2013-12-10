@@ -14,5 +14,5 @@ class PluginLogFilter(logging.Filter):
         self._context = context
 
     def filter(self, record):
-        record.plugin_name = self._context.get_plugin().get_name()
+        record.plugin_name = self._context.get_plugin().name
         return record

@@ -16,7 +16,7 @@ class PluginContext(object):
         self._framework = framework
 
         #Init logger for plugin
-        plugin_name = self._plugin.get_name()
+        plugin_name = self._plugin.name
         self._logger = logging.getLogger(plugin_name)
         self._logger.addFilter(PluginLogFilter(self))
 
@@ -45,14 +45,11 @@ class Plugin(object):
         self._state = PluginState.INSTALLED
         self._framework = framework
         self._id = plugin_id
-        self._name = name
+        self.name = name
         self._context = PluginContext(framework, self)
 
     def get_property(self, key):
         return self._framework.get_property(key)
-
-    def get_name(self):
-        return self._name
 
     def get_context(self):
         return self._context
