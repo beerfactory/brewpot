@@ -6,6 +6,8 @@ import constants
 from core.exceptions import PluginException
 from core.events import EventDispatcher
 from core.framework.events import FrameworkStartedEvent
+from core.framework.events import PluginInstalledEvent
+from core.framework.events import PluginResolvedEvent
 from core.framework.plugin import Plugin, PluginState
 
 frameworks = []
@@ -90,6 +92,10 @@ class Framework(Plugin):
             if plugin.name == name:
                 self._logger.warn("Plugin %s already installed", name)
                 return plugin
+        self._send_framework_event(
+            PluginInstalledEvent(self, plugin),
+            async=True)
+
         try:
             self.resolve_plugin(plugin)
         except PluginException as pe:
@@ -110,6 +116,9 @@ class Framework(Plugin):
                 module = importlib.import_module(plugin.name)
                 sys.modules[plugin.name] = module
             plugin._state = PluginState.RESOLVED
+            self._send_framework_event(
+                PluginResolvedEvent(self, plugin),
+                async=True)
         except ImportError as ex:
             # Error importing the module
             raise PluginException(
