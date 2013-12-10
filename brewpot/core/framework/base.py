@@ -2,13 +2,13 @@ import sys
 import uuid
 import importlib
 import threading
-import constants
-from core.exceptions import PluginException
-from core.events import EventDispatcher
-from core.framework.events import FrameworkStartedEvent
-from core.framework.events import PluginInstalledEvent
-from core.framework.events import PluginResolvedEvent
-from core.framework.plugin import Plugin, PluginState
+from brewpot import constants
+from brewpot.core.exceptions import PluginException
+from brewpot.core.events import EventDispatcher
+from brewpot.core.framework.events import FrameworkStartedEvent
+from brewpot.core.framework.events import PluginInstalledEvent
+from brewpot.core.framework.events import PluginResolvedEvent
+from brewpot.core.framework.plugin import Plugin, PluginState
 
 frameworks = []
 

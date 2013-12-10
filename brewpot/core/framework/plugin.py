@@ -1,6 +1,6 @@
 import logging
-from utils import enum
-from utils.logging import PluginLogFilter
+from brewpot.utils import enum
+from brewpot.utils.logging import PluginLogFilter
 
 PluginState = enum(
     INSTALLED=0x02,

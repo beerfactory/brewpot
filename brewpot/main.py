@@ -1,6 +1,6 @@
-from core.framework import base as framework
-from core.framework.events import FrameworkStartedEvent
-from core.events import AnyEvent
+from brewpot.core.framework import base as framework
+from brewpot.core.framework.events import FrameworkStartedEvent
+from brewpot.core.events import AnyEvent
 import logging
 import time
 

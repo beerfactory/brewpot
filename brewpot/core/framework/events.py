@@ -1,4 +1,4 @@
-from core.events import Event
+from brewpot.core.events import Event
 
 
 class PluginEvent(Event):
