@@ -12,33 +12,33 @@ class PluginEvent(Event):
         self._plugin = plugin
 
 
-class FrameworkStartedEvent(PluginEvent):
+class EngineStartedEvent(PluginEvent):
     """
-    Event sent by the framework when start finishes
+    Event sent by the engine when start finishes
     """
-    def __init__(self, framework):
-        super(FrameworkStartedEvent, self).__init__(framework)
+    def __init__(self, engine):
+        super(EngineStartedEvent, self).__init__(engine)
 
 
 class PluginInstalledEvent(PluginEvent):
     """
-    Event sent by the framework when a plugin has been installed
+    Event sent by the engine when a plugin has been installed
 
-    the event holds a reference to the framework and the Plugin
+    the event holds a reference to the engine and the Plugin
     being installed
     """
-    def __init__(self, framework, plugin):
-        super(FrameworkStartedEvent, self).__init__(framework)
+    def __init__(self, engine, plugin):
+        super(EngineStartedEvent, self).__init__(engine)
         self.installed_plugin = plugin
 
 
 class PluginResolvedEvent(PluginEvent):
     """
-    Event sent by the framework when a plugin has been resolved
+    Event sent by the engine when a plugin has been resolved
 
-    the event holds a reference to the framework and the Plugin
+    the event holds a reference to the engine and the Plugin
     being resolved
     """
-    def __init__(self, framework, plugin):
-        super(FrameworkStartedEvent, self).__init__(framework)
+    def __init__(self, engine, plugin):
+        super(EngineStartedEvent, self).__init__(engine)
         self.resolved_plugin = plugin

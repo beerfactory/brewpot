@@ -27,11 +27,11 @@ class AnyEvent(Event):
 
 
 class EventDispatcher(object):
-    def __init__(self, framework):
+    def __init__(self, engine):
         self._connected_callbacks = {}
         self._thread_executor = ThreadPoolExecutor(max_workers=10)
-        self._framework = framework
-        self._logger = self._framework.get_context().get_logger().getChild("EventDispatcher")
+        self._engine = engine
+        self._logger = self._engine.get_context().get_logger().getChild("EventDispatcher")
         pass
 
     def send(self, event, async=False):

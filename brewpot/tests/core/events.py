@@ -1,6 +1,6 @@
 import unittest
 from brewpot.core.events import *
-from brewpot.core.framework import base as framework
+from brewpot.core.engine import base as framework
 
 
 class EventDispatcherTest(unittest.TestCase):
@@ -11,7 +11,7 @@ class EventDispatcherTest(unittest.TestCase):
         def callback(self):
             self.event = True
 
-        dispatcher = EventDispatcher(framework.newFramework(dict()))
+        dispatcher = EventDispatcher(framework.newEngine(dict()))
         dispatcher.register(callback, [Event])
         dispatcher.send(Event())
 

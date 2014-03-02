@@ -11,9 +11,9 @@ PluginState = enum(
 
 
 class PluginContext(object):
-    def __init__(self, framework, plugin):
+    def __init__(self, engine, plugin):
         self._plugin = plugin
-        self._framework = framework
+        self._engine = engine
 
         #Init logger for plugin
         plugin_name = self._plugin.name
@@ -21,13 +21,13 @@ class PluginContext(object):
         self._logger.addFilter(PluginLogFilter(self))
 
     def install_plugin(self, name, path=None):
-        return self._framework.install_plugin(name, path)
+        return self._engine.install_plugin(name, path)
 
     def send_event(self, event, async=False):
-        self._framework.send_event(self, event, async)
+        self._engine.send_event(self, event, async)
 
     def register_event_callback(self, callback, event_types):
-        self._framework.register_event_callback(self, callback, event_types)
+        self._engine.register_event_callback(self, callback, event_types)
 
     def get_plugin(self):
         return self._plugin
@@ -41,15 +41,15 @@ class PluginContext(object):
 
 class Plugin(object):
 
-    def __init__(self, framework, plugin_id, name):
+    def __init__(self, engine, plugin_id, name):
         self._state = PluginState.INSTALLED
-        self._framework = framework
+        self._engine = engine
         self._id = plugin_id
         self.name = name
-        self._context = PluginContext(framework, self)
+        self._context = PluginContext(engine, self)
 
     def get_property(self, key):
-        return self._framework.get_property(key)
+        return self._engine.get_property(key)
 
     def get_context(self):
         return self._context

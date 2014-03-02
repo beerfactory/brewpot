@@ -5,7 +5,7 @@ import threading
 from brewpot import constants
 from brewpot.core.exceptions import PluginException
 from brewpot.core.events import EventDispatcher
-from brewpot.core.engine.events import FrameworkStartedEvent
+from brewpot.core.engine.events import EngineStartedEvent
 from brewpot.core.engine.events import PluginInstalledEvent
 from brewpot.core.engine.events import PluginResolvedEvent
 from brewpot.core.engine.plugin import Plugin, PluginState
@@ -13,34 +13,34 @@ from brewpot.core.engine.plugin import Plugin, PluginState
 frameworks = []
 
 
-def newFramework(configuration):
-    fwk = Framework(configuration)
+def newEngine(configuration):
+    fwk = Engine(configuration)
     frameworks.append(fwk)
     return fwk
 
 
-class Framework(Plugin):
+class Engine(Plugin):
 
     def __init__(self, properties):
         """
-        Sets up the framework.
+        Sets up the engine.
 
-        :param properties: The framework properties
+        :param properties: The engine properties
         """
-        super(Framework, self).__init__(self, 0, constants.SYSTEM_PLUGIN_NAME)
+        super(Engine, self).__init__(self, 0, constants.SYSTEM_PLUGIN_NAME)
         self._logger = self.get_context().get_logger()
 
-        # Framework properties
+        # Engine properties
         if not isinstance(properties, dict):
             self._properties = {}
         else:
             self._properties = properties.copy()
 
-        #Init framework UUID
+        #Init engine plugin UUID
         self.uid = uuid.uuid4()
         self._properties[constants.PROP_UID] = str(self.uid)
 
-        # Next plugin Id (start at 1, as 0 is reserved for the framework itself)
+        # Next plugin Id (start at 1, as 0 is reserved for the engine itself)
         self._next_plugin_id = 1
 
         #Plugins dict pluginId->plugin
@@ -50,9 +50,9 @@ class Framework(Plugin):
         self._event_dispatcher = EventDispatcher(self)
         self._start_level = 0
         self._state = PluginState.STARTING
-        self._logger.info("Framework surceesfully created")
+        self._logger.info("Engine successfully created")
 
-    def _send_framework_event(self, event, async):
+    def _send_engine_event(self, event, async):
         self.send_event(self.get_context(), event, async)
 
     def send_event(self, plugin_context, event, async):
@@ -66,19 +66,19 @@ class Framework(Plugin):
         return self._properties[key]
 
     def start(self):
-        self._logger.info("Framework starting ...")
+        self._logger.info("Engine starting ...")
 
-        super(Framework, self).start()
+        super(Engine, self).start()
         self._state = PluginState.ACTIVE
 
-        self._send_framework_event(FrameworkStartedEvent(self), async=True)
-        self._logger.info("Framework started")
+        self._send_engine_event(EngineStartedEvent(self), async=True)
+        self._logger.info("Engine started")
 
     def install_plugin(self, name, path=None):
         """
         Install a plugin
 
-        Plugin is added to the framework plugins list. Then the framework
+        Plugin is added to the engine plugins list. Then the engine
         tries to resolve the plugin (importing module). The plugin is RESOLVED
         if this operation succeed, INSTALLED otherwise.
         """
@@ -92,7 +92,7 @@ class Framework(Plugin):
             if plugin.name == name:
                 self._logger.warn("Plugin %s already installed", name)
                 return plugin
-        self._send_framework_event(
+        self._send_engine_event(
             PluginInstalledEvent(self, plugin),
             async=True)
 
@@ -116,7 +116,7 @@ class Framework(Plugin):
                 module = importlib.import_module(plugin.name)
                 sys.modules[plugin.name] = module
             plugin._state = PluginState.RESOLVED
-            self._send_framework_event(
+            self._send_engine_event(
                 PluginResolvedEvent(self, plugin),
                 async=True)
         except ImportError as ex:
