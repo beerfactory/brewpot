@@ -1,12 +1,11 @@
 import sys
-import uuid
 import importlib
 import threading
 
 from brewpot import constants
 from brewpot.core.exceptions import PluginException
 from brewpot.core.events import EventDispatcher
-from brewpot.core.plugin import Plugin, PluginState, PluginEvent
+from brewpot.core.plugin import Plugin, PluginEvent, states
 
 
 engines = []
@@ -57,8 +56,9 @@ class Engine(Plugin):
 
         :param properties: The engine properties
         """
-        super(Engine, self).__init__(self, 0, constants.SYSTEM_PLUGIN_NAME)
-        self._logger = self.get_context().get_logger()
+        super(Engine, self).__init__(self, constants.SYSTEM_PLUGIN_NAME)
+        self.context._plugin_id = 0
+        self._logger = self.context.get_logger()
 
         # Engine properties
         if not isinstance(properties, dict):
@@ -67,7 +67,6 @@ class Engine(Plugin):
             self._properties = properties.copy()
 
         #Init engine plugin UUID
-        self.uid = uuid.uuid4()
         self._properties[constants.PROP_UID] = str(self.uid)
 
         # Next plugin Id (start at 1, as 0 is reserved for the engine itself)
@@ -79,11 +78,11 @@ class Engine(Plugin):
 
         self._event_dispatcher = EventDispatcher(self)
         self._start_level = 0
-        self._state = PluginState.STARTING
+        self._state = states.STARTING
         self._logger.info("Engine successfully created")
 
     def _send_engine_event(self, event, async):
-        self.send_event(self.get_context(), event, async)
+        self.send_event(self.context, event, async)
 
     def send_event(self, plugin_context, event, async):
         event.sender = plugin_context
@@ -99,7 +98,7 @@ class Engine(Plugin):
         self._logger.info("Engine starting ...")
 
         super(Engine, self).start()
-        self._state = PluginState.ACTIVE
+        self._state = states.STARTED
 
         self._send_engine_event(EngineStartedEvent(self), async=True)
         self._logger.info("Engine started")
@@ -113,10 +112,10 @@ class Engine(Plugin):
         if this operation succeed, INSTALLED otherwise.
         """
         with self._plugins_lock:
-            plugin_id = self.__next_plugin_id
+            plugin_id = self._next_plugin_id
             new_plugin = Plugin(self, plugin_id, name)
             self._plugins[plugin_id] = new_plugin
-            self.__next_plugin_id += 1
+            self._next_plugin_id += 1
 
         for plugin in self._plugins:
             if plugin.name == name:
@@ -145,7 +144,7 @@ class Engine(Plugin):
                 # Load the module
                 module = importlib.import_module(plugin.name)
                 sys.modules[plugin.name] = module
-            plugin._state = PluginState.RESOLVED
+            plugin._state = states.RESOLVED
             self._send_engine_event(
                 PluginResolvedEvent(self, plugin),
                 async=True)

@@ -31,7 +31,7 @@ class EventDispatcher(object):
         self._connected_callbacks = {}
         self._thread_executor = ThreadPoolExecutor(max_workers=10)
         self._engine = engine
-        self._logger = self._engine.get_context().get_logger().getChild("EventDispatcher")
+        self._logger = self._engine.context.get_logger().getChild("EventDispatcher")
         pass
 
     def send(self, event, async=False):

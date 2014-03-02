@@ -21,5 +21,5 @@ def callback(event):
 if __name__ == '__main__':
     logger.info("starting")
     eng = engine.newEngine(dict())
-    eng.register_event_callback(eng.get_context(), callback, [EngineStartedEvent, AnyEvent])
+    eng.register_event_callback(eng.context, callback, [EngineStartedEvent, AnyEvent])
     eng.start()
