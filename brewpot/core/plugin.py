@@ -1,6 +1,7 @@
 import logging
 from brewpot.utils import enum
 from brewpot.utils.logging import PluginLogFilter
+from brewpot.core.events import Event
 
 PluginState = enum(
     INSTALLED=0x02,
@@ -8,6 +9,16 @@ PluginState = enum(
     STARTING=0x08,
     STOPPING=0x10,
     ACTIVE=0x20)
+
+class PluginEvent(Event):
+    """
+    Base class for event sent from inside plugins.
+
+    PluginEvent holds a reference to the plugin which send the event
+    """
+    def __init__(self, plugin):
+        super(PluginEvent, self).__init__()
+        self._plugin = plugin
 
 
 class PluginContext(object):

@@ -2,22 +2,52 @@ import sys
 import uuid
 import importlib
 import threading
+
 from brewpot import constants
 from brewpot.core.exceptions import PluginException
 from brewpot.core.events import EventDispatcher
-from brewpot.core.engine.events import EngineStartedEvent
-from brewpot.core.engine.events import PluginInstalledEvent
-from brewpot.core.engine.events import PluginResolvedEvent
-from brewpot.core.engine.plugin import Plugin, PluginState
+from brewpot.core.plugin import Plugin, PluginState, PluginEvent
 
-frameworks = []
+
+engines = []
 
 
 def newEngine(configuration):
-    fwk = Engine(configuration)
-    frameworks.append(fwk)
-    return fwk
+    eng = Engine(configuration)
+    engines.append(eng)
+    return eng
 
+
+class EngineStartedEvent(PluginEvent):
+    """
+    Event sent by the engine when start finishes
+    """
+    def __init__(self, engine):
+        super(EngineStartedEvent, self).__init__(engine)
+
+
+class PluginInstalledEvent(PluginEvent):
+    """
+    Event sent by the engine when a plugin has been installed
+
+    the event holds a reference to the engine and the Plugin
+    being installed
+    """
+    def __init__(self, engine, plugin):
+        super(EngineStartedEvent, self).__init__(engine)
+        self.installed_plugin = plugin
+
+
+class PluginResolvedEvent(PluginEvent):
+    """
+    Event sent by the engine when a plugin has been resolved
+
+    the event holds a reference to the engine and the Plugin
+    being resolved
+    """
+    def __init__(self, engine, plugin):
+        super(EngineStartedEvent, self).__init__(engine)
+        self.resolved_plugin = plugin
 
 class Engine(Plugin):
 

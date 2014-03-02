@@ -1,6 +1,8 @@
 import unittest
+
+from brewpot.core import base as framework
+
 from brewpot.core.events import *
-from brewpot.core.engine import base as framework
 
 
 class EventDispatcherTest(unittest.TestCase):

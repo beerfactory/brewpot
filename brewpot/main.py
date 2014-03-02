@@ -1,14 +1,16 @@
-from brewpot.core.engine import base as engine
-from brewpot.core.engine.events import EngineStartedEvent
-from brewpot.core.events import AnyEvent
 import logging
 import time
+
+import brewpot.core.engine as engine
+from brewpot.core.engine import EngineStartedEvent
+from brewpot.core.events import AnyEvent
+
 
 logging.basicConfig(level=logging.DEBUG,
     format='%(asctime)s - %(threadName)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%m-%d %H:%M:%S',
 )
-logger = logging.getLogger('brewpot')
+logger = logging.getLogger('brewpot-main')
 
 
 def callback(event):
@@ -19,6 +21,5 @@ def callback(event):
 if __name__ == '__main__':
     logger.info("starting")
     eng = engine.newEngine(dict())
-#    fwk.register_event_callback(fwk.get_context(), callback, [FrameworkStartedEvent, AnyEvent])
+    eng.register_event_callback(eng.get_context(), callback, [EngineStartedEvent, AnyEvent])
     eng.start()
-    eng.stop()
